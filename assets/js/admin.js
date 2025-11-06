@@ -1,3 +1,9 @@
+if (window.authService) {
+    window.authService.requireAuth();
+} else {
+    console.warn('Autentifikavimo paslauga nepasiekiama.');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const form = document.getElementById('carForm');
     const listEl = document.getElementById('adminList');
@@ -6,6 +12,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resetBtn = document.getElementById('resetCars');
     const uploadInput = document.getElementById('carGalleryUpload');
     const uploadPreview = document.getElementById('localGalleryPreview');
+    const passwordForm = document.getElementById('passwordForm');
+    const passwordMessage = document.getElementById('passwordMessage');
+    const logoutBtn = document.getElementById('logoutBtn');
 
     if (!form || !listEl || !window.CarData) return;
 
@@ -100,6 +109,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loadCars = async () => {
         cars = await window.CarData.getCars();
         renderList();
+    };
+
+    const showPasswordMessage = (text, isError = true) => {
+        if (!passwordMessage) return;
+        passwordMessage.textContent = text;
+        passwordMessage.hidden = !text;
+        passwordMessage.classList.toggle('form-error', isError);
+        passwordMessage.classList.toggle('form-success', !isError);
     };
 
     const renderList = () => {
@@ -275,6 +292,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         await window.CarData.resetCars();
         await loadCars();
     });
+
+    if (passwordForm && window.authService) {
+        passwordForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            showPasswordMessage('');
+
+            const current = (passwordForm.querySelector('#currentPassword')?.value || '').trim();
+            const next = (passwordForm.querySelector('#newPassword')?.value || '').trim();
+
+            try {
+                window.authService.updatePassword(current, next);
+                showPasswordMessage('Slaptažodis atnaujintas. Prisijunkite iš naujo.', false);
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1200);
+            } catch (error) {
+                const message = error?.message || 'Nepavyko atnaujinti slaptažodžio. Bandykite dar kartą.';
+                showPasswordMessage(message, true);
+            } finally {
+                passwordForm.reset();
+            }
+        });
+    }
+
+    if (logoutBtn && window.authService) {
+        logoutBtn.addEventListener('click', () => {
+            window.authService.logout();
+            window.location.href = 'login.html';
+        });
+    }
 
     window.addEventListener('cars:updated', loadCars);
 

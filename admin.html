@@ -112,6 +112,24 @@
                     </div>
                     <div id="adminList" class="admin-list" aria-live="polite"></div>
                 </div>
+                <div class="admin-card admin-card--security">
+                    <h2>Prisijungimo nustatymai</h2>
+                    <p class="admin-card__intro">Slaptažodis ir prisijungimo būsena saugomi tik šiame įrenginyje. Pasikeiskite slaptažodį, kad tik jūs galėtumėte pasiekti valdymo panelę.</p>
+                    <form id="passwordForm" class="admin-form admin-form--compact">
+                        <label for="currentPassword">Dabartinis slaptažodis</label>
+                        <input type="password" id="currentPassword" name="currentPassword" autocomplete="current-password" placeholder="Įveskite dabartinį slaptažodį" required />
+
+                        <label for="newPassword">Naujas slaptažodis</label>
+                        <input type="password" id="newPassword" name="newPassword" autocomplete="new-password" placeholder="Bent 6 simbolių" required />
+                        <p class="form-hint">Jei slaptažodis dar nebuvo keistas, numatytoji reikšmė: <code>MBKreicas2024!</code>.</p>
+
+                        <button type="submit" class="btn ghost">Išsaugoti slaptažodį</button>
+                        <p id="passwordMessage" class="form-error" role="status" hidden></p>
+                    </form>
+                    <div class="security-actions">
+                        <button type="button" id="logoutBtn" class="btn ghost danger">Atsijungti</button>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -135,6 +153,7 @@
 
     <script src="assets/js/util.js"></script>
     <script src="assets/js/nav.js"></script>
+    <script src="assets/js/auth.js"></script>
     <script src="assets/js/dataService.js"></script>
     <script src="assets/js/admin.js"></script>
 </body>
