@@ -13,7 +13,7 @@ Vieno puslapio (SPA stiliaus) svetainių rinkinys, sukurtas pristatyti naudotus 
 - `assets/css` ir `assets/js` – stiliai bei interaktyvumas.
 
 ## Naudojimas
-1. Paleiskite bet kokį statinį serverį (pvz., `npx serve`) šio katalogo šaknyje arba atidarykite `index.html` naršyklėje.
+1. Paleiskite bet kokį statinį serverį (pvz., `npx serve -l tcp://0.0.0.0:3000 .`) šio katalogo šaknyje arba atidarykite `index.html` naršyklėje. Naudojant `0.0.0.0` adresą svetainė taps pasiekiama ir kitiems tame pačiame tinkle esantiems įrenginiams (pvz., telefonu).
 2. Prisijunkite per `login.html` naudodami numatytą slaptažodį **MBKreicas2024!** (rekomenduojama jį keisti).
 3. Į „Admin“ skiltį pateksite po prisijungimo (`admin.html`). Čia galite:
    - Pridėti naują automobilį be kodo redagavimo.

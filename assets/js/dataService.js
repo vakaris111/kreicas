@@ -1,6 +1,7 @@
 (function () {
     const STORAGE_KEY = 'mbk_cars_v1';
     let cache = null;
+    let dataSource = null;
 
     const fetchDefaults = async () => {
         const response = await fetch('assets/data/cars.json');
@@ -92,6 +93,7 @@
         if (stored) {
             const normalized = normalizeCars(stored);
             cache = normalized;
+            dataSource = 'storage';
             if (JSON.stringify(normalized) !== JSON.stringify(stored)) {
                 writeToStorage(normalized);
             }
@@ -100,6 +102,7 @@
         const defaults = await fetchDefaults();
         const normalizedDefaults = normalizeCars(defaults);
         cache = normalizedDefaults;
+        dataSource = 'defaults';
         writeToStorage(normalizedDefaults);
         return normalizedDefaults;
     };
@@ -109,13 +112,49 @@
         return cars;
     };
 
+    const matchBySlug = (cars, slug) => {
+        if (!slug) return null;
+        let normalizedSlug = String(slug);
+        try {
+            normalizedSlug = decodeURIComponent(normalizedSlug);
+        } catch (error) {
+            // ignore decode issues and fall back to raw slug
+        }
+        normalizedSlug = normalizedSlug.trim();
+        return (
+            cars.find((item) => item.slug === normalizedSlug || String(item.id) === normalizedSlug)
+            || cars.find((item) => generateSlug(item.title || item.name || String(item.id || '')) === normalizedSlug)
+        );
+    };
+
     const getCar = async (slug) => {
+        if (!slug) return null;
         const cars = await ensureData();
-        return cars.find((item) => item.slug === slug || String(item.id) === String(slug));
+        let found = matchBySlug(cars, slug);
+        if (found) return found;
+
+        if (dataSource !== 'defaults') {
+            try {
+                const defaults = normalizeCars(await fetchDefaults());
+                cache = defaults;
+                dataSource = 'defaults';
+                writeToStorage(defaults);
+                notify();
+                found = matchBySlug(defaults, slug);
+                if (found) {
+                    return found;
+                }
+            } catch (error) {
+                console.warn('Nepavyko atkurti numatytų automobilių:', error);
+            }
+        }
+
+        return null;
     };
 
     const saveCars = (cars) => {
         cache = cars;
+        dataSource = 'storage';
         writeToStorage(cars);
         notify();
         return cars;
@@ -148,6 +187,7 @@
         const defaults = await fetchDefaults();
         const normalizedDefaults = normalizeCars(defaults);
         saveCars(normalizedDefaults);
+        dataSource = 'defaults';
         return normalizedDefaults;
     };
 
