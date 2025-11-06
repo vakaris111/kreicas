@@ -772,11 +772,61 @@ img {
     z-index: 1;
 }
 
+.lightbox__main {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .lightbox__main img {
     width: 100%;
     border-radius: 1rem;
     object-fit: cover;
     aspect-ratio: 16 / 9;
+}
+
+.lightbox__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1px solid rgba(132, 151, 201, 0.35);
+    background: rgba(9, 13, 24, 0.75);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2;
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+.lightbox__nav span {
+    transform: translateY(-1px);
+}
+
+.lightbox__nav:hover {
+    background: rgba(91, 141, 239, 0.35);
+    border-color: rgba(124, 168, 255, 0.6);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.lightbox__nav:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+.lightbox__nav--prev {
+    left: 0.75rem;
+}
+
+.lightbox__nav--next {
+    right: 0.75rem;
 }
 
 .lightbox__strip {
@@ -828,6 +878,26 @@ img {
     background: rgba(91, 141, 239, 0.25);
 }
 
+@media (max-width: 640px) {
+    .lightbox__inner {
+        padding: 1.25rem;
+    }
+
+    .lightbox__nav {
+        width: 2.35rem;
+        height: 2.35rem;
+        font-size: 1.45rem;
+    }
+
+    .lightbox__nav--prev {
+        left: 0.35rem;
+    }
+
+    .lightbox__nav--next {
+        right: 0.35rem;
+    }
+}
+
 .car-specs {
     display: grid;
     gap: 1rem;
@@ -835,30 +905,56 @@ img {
 
 .spec-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1.25rem;
 }
 
 .spec-item {
-    background: rgba(15, 24, 40, 0.65);
-    border-radius: 1rem;
-    padding: 1.1rem;
-    border: 1px solid rgba(132, 151, 201, 0.2);
-    box-shadow: 0 10px 24px rgba(10, 16, 28, 0.2);
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.15rem;
+    padding: 1.25rem 1.35rem;
+    background: linear-gradient(155deg, rgba(18, 26, 46, 0.92), rgba(9, 14, 26, 0.72));
+    border: 1px solid rgba(91, 141, 239, 0.25);
+    box-shadow: 0 22px 36px rgba(7, 12, 24, 0.35);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.spec-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(130deg, rgba(91, 141, 239, 0.25), rgba(91, 141, 239, 0) 60%);
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+.spec-item:hover {
+    transform: translateY(-4px);
+    border-color: rgba(124, 168, 255, 0.45);
+}
+
+.spec-item span,
+.spec-item strong {
+    position: relative;
+    z-index: 1;
 }
 
 .spec-item span {
     display: block;
-    color: rgba(199, 214, 245, 0.75);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
+    color: rgba(199, 214, 245, 0.78);
+    font-size: 0.74rem;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
 }
 
 .spec-item strong {
-    font-size: 1.05rem;
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 1.22rem;
     font-weight: 700;
     color: #fff;
+    letter-spacing: -0.01em;
 }
 
 .features-list {

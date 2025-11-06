@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const galleryModal = document.getElementById('galleryModal');
     const lightboxImage = document.getElementById('lightboxImage');
     const lightboxStrip = document.getElementById('lightboxStrip');
+    const lightboxPrev = document.getElementById('lightboxPrev');
+    const lightboxNext = document.getElementById('lightboxNext');
 
     let activeIndex = 0;
     let lightboxIndex = 0;
@@ -65,6 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 lightboxImage.src = gallery[safeIndex];
                 lightboxImage.alt = `${car.title} nuotrauka ${safeIndex + 1}`;
             }
+            updateMainImage(safeIndex);
         };
 
         const buildLightboxStrip = () => {
@@ -100,6 +103,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
+        const navigateLightbox = (direction) => {
+            if (!gallery || !gallery.length) return;
+            const nextIndex = (lightboxIndex + direction + gallery.length) % gallery.length;
+            setLightboxImage(nextIndex);
+            buildLightboxStrip();
+        };
+
         const maxPreview = 5;
         const preview = thumbs ? gallery.slice(0, maxPreview) : [];
         const extraCount = Math.max(gallery.length - maxPreview, 0);
@@ -127,6 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         return;
                     }
                     updateMainImage(index);
+                    openLightbox(index);
                 });
             });
         }
@@ -148,6 +159,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
+        if (lightboxPrev) {
+            lightboxPrev.addEventListener('click', () => navigateLightbox(-1));
+        }
+
+        if (lightboxNext) {
+            lightboxNext.addEventListener('click', () => navigateLightbox(1));
+        }
+
         if (galleryModal) {
             galleryModal.addEventListener('click', (event) => {
                 if (event.target.dataset.close !== undefined) {
@@ -157,8 +176,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         document.addEventListener('keydown', (event) => {
+            const modalOpen = galleryModal && !galleryModal.hasAttribute('hidden');
+            if (!modalOpen) return;
             if (event.key === 'Escape') {
                 closeLightbox();
+            }
+            if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                navigateLightbox(1);
+            }
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                navigateLightbox(-1);
             }
         });
 
