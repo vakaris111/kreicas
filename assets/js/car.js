@@ -118,11 +118,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             thumbs.innerHTML = preview
                 .map((src, index) => {
                     const isOverflow = extraCount > 0 && index === preview.length - 1;
+                    const openIndex = isOverflow ? maxPreview : index;
+                    const thumbSrc = isOverflow ? gallery[openIndex] : src;
                     return `
-                        <button type="button" class="${index === 0 ? 'active' : ''}${isOverflow ? ' has-overlay' : ''}" data-src="${src}" data-index="${index}" ${
+                        <button type="button" class="${index === 0 ? 'active' : ''}${isOverflow ? ' has-overlay' : ''}" data-src="${thumbSrc}" data-index="${openIndex}" ${
                         isOverflow ? 'data-more="true"' : ''
                     }>
-                            <img src="${src}" alt="${car.title} nuotrauka ${index + 1}" loading="lazy" />
+                            <img src="${thumbSrc}" alt="${car.title} nuotrauka ${openIndex + 1}" loading="lazy" />
                             ${isOverflow ? `<span class="thumb-overlay">+${extraCount} foto</span>` : ''}
                         </button>
                     `;

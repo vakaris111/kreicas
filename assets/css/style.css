@@ -761,14 +761,14 @@ img {
 
 .lightbox__inner {
     position: relative;
-    width: min(900px, 92vw);
+    width: min(1100px, 95vw);
     background: var(--card-strong);
     border-radius: 1.25rem;
-    padding: 1.75rem;
+    padding: clamp(1.5rem, 4vw, 2.75rem);
     border: 1px solid rgba(132, 151, 201, 0.3);
     box-shadow: var(--shadow);
     display: grid;
-    gap: 1.25rem;
+    gap: clamp(1rem, 2vw, 1.75rem);
     z-index: 1;
 }
 
@@ -777,13 +777,15 @@ img {
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: clamp(18rem, 60vh, 38rem);
 }
 
 .lightbox__main img {
     width: 100%;
+    height: auto;
+    max-height: min(80vh, 720px);
     border-radius: 1rem;
-    object-fit: cover;
-    aspect-ratio: 16 / 9;
+    object-fit: contain;
 }
 
 .lightbox__nav {
@@ -881,6 +883,10 @@ img {
 @media (max-width: 640px) {
     .lightbox__inner {
         padding: 1.25rem;
+    }
+
+    .lightbox__main {
+        min-height: clamp(15rem, 55vh, 26rem);
     }
 
     .lightbox__nav {
