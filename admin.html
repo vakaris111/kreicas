@@ -77,14 +77,27 @@
                         <label for="carFeatures">Įranga (atskirkite kableliais)</label>
                         <input type="text" id="carFeatures" name="carFeatures" placeholder="LED žibintai, Šildomos sėdynės" />
 
+                        <div class="upload-group">
+                            <span class="upload-group__label">Galerijos nuotraukos</span>
+                            <p class="form-hint">Įkelkite savo nuotraukas arba nurodykite nuorodas. Įkelti failai bus išsaugoti tik šiame įrenginyje.</p>
+                            <div class="upload-actions">
+                                <label class="btn ghost btn-upload">
+                                    Pasirinkti nuotraukas
+                                    <input type="file" id="carGalleryUpload" accept="image/*" multiple hidden />
+                                </label>
+                            </div>
+                            <div id="localGalleryPreview" class="upload-preview" data-empty="Dar nėra įkeltų nuotraukų."></div>
+                        </div>
+
                         <label for="carGallery">Nuotraukų nuorodos (atskirkite kableliais)</label>
                         <input type="text" id="carGallery" name="carGallery" placeholder="https://..." />
+                        <p class="form-hint">Palaikomos ir vietinės nuotraukos, ir viešos nuorodos.</p>
 
                         <label for="carVin">VIN</label>
                         <input type="text" id="carVin" name="carVin" placeholder="WDD..." />
 
                         <button type="submit" class="btn primary">Išsaugoti automobilį</button>
-                        <p class="form-note">Automobiliai išsaugomi šio įrenginio naršyklėje (localStorage). Galite eksportuoti/ importuoti duomenis žemiau.</p>
+                        <p class="form-note">Automobiliai, įskaitant įkeltas nuotraukas, saugomi šio įrenginio naršyklėje (localStorage). Galite eksportuoti / importuoti duomenis žemiau.</p>
                     </form>
                 </div>
                 <div class="admin-card">

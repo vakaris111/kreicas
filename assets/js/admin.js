@@ -4,11 +4,98 @@ document.addEventListener('DOMContentLoaded', async () => {
     const exportBtn = document.getElementById('exportCars');
     const importInput = document.getElementById('importCars');
     const resetBtn = document.getElementById('resetCars');
+    const uploadInput = document.getElementById('carGalleryUpload');
+    const uploadPreview = document.getElementById('localGalleryPreview');
 
     if (!form || !listEl || !window.CarData) return;
 
     let cars = [];
     let editingSlug = null;
+    let uploadedImages = [];
+
+    const escapeHtml = (value = '') =>
+        String(value).replace(/[&<>"]|'/g, (char) =>
+            ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;',
+            }[char])
+        );
+
+    const renderUploadedImages = () => {
+        if (!uploadPreview) return;
+
+        if (!uploadedImages.length) {
+            uploadPreview.innerHTML = `<p class="upload-preview__empty">${uploadPreview.dataset.empty || 'Dar nėra įkeltų nuotraukų.'}</p>`;
+            return;
+        }
+
+        uploadPreview.innerHTML = `
+            <ul class="upload-preview__list">
+                ${uploadedImages
+                    .map(
+                        (item, index) => `
+                            <li class="upload-preview__item">
+                                <img src="${item.dataUrl}" alt="${escapeHtml(item.name)}" loading="lazy" />
+                                <div class="upload-preview__meta">
+                                    <span>${escapeHtml(item.name)}</span>
+                                    <button type="button" class="upload-preview__remove" data-remove="${index}">Šalinti</button>
+                                </div>
+                            </li>
+                        `
+                    )
+                    .join('')}
+            </ul>
+        `;
+
+        uploadPreview.querySelectorAll('[data-remove]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const index = Number(button.dataset.remove);
+                if (Number.isNaN(index)) return;
+                uploadedImages.splice(index, 1);
+                renderUploadedImages();
+            });
+        });
+    };
+
+    const readFileAsDataUrl = (file) =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error || new Error('Nepavyko nuskaityti failo.'));
+            reader.readAsDataURL(file);
+        });
+
+    const handleUploads = async (fileList) => {
+        if (!fileList || !fileList.length) return;
+        const files = Array.from(fileList).filter((file) => file.type.startsWith('image/'));
+
+        if (!files.length) {
+            alert('Pasirinkite paveikslėlių failus.');
+            return;
+        }
+
+        try {
+            const results = await Promise.all(
+                files.map((file) =>
+                    readFileAsDataUrl(file).then((dataUrl) => ({
+                        name: file.name || 'Nuotrauka',
+                        dataUrl,
+                    }))
+                )
+            );
+
+            uploadedImages = [...uploadedImages, ...results];
+            renderUploadedImages();
+        } catch (error) {
+            console.error('Nepavyko įkelti nuotraukų:', error);
+            alert('Nepavyko įkelti kai kurių nuotraukų. Bandykite dar kartą.');
+        } finally {
+            if (uploadInput) uploadInput.value = '';
+        }
+    };
 
     const loadCars = async () => {
         cars = await window.CarData.getCars();
@@ -61,7 +148,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         form.querySelector('#carColor').value = car.color || '';
         form.querySelector('#carDescriptionInput').value = car.description || '';
         form.querySelector('#carFeatures').value = car.features ? car.features.join(', ') : '';
-        form.querySelector('#carGallery').value = car.gallery ? car.gallery.join(', ') : '';
+        const gallery = Array.isArray(car.gallery) ? car.gallery : [];
+        const remoteGallery = gallery.filter((src) => typeof src === 'string' && !src.startsWith('data:'));
+        const localGallery = gallery.filter((src) => typeof src === 'string' && src.startsWith('data:'));
+
+        form.querySelector('#carGallery').value = remoteGallery.join(', ');
+        uploadedImages = localGallery.map((src, index) => ({
+            name: `Įkelta nuotrauka ${index + 1}`,
+            dataUrl: src,
+        }));
+        renderUploadedImages();
         form.querySelector('#carVin').value = car.vin || '';
         form.querySelector('button[type="submit"]').textContent = 'Atnaujinti automobilį';
         form.scrollIntoView({ behavior: 'smooth' });
@@ -76,6 +172,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resetForm = () => {
         form.reset();
         editingSlug = null;
+        uploadedImages = [];
+        renderUploadedImages();
         form.querySelector('button[type="submit"]').textContent = 'Išsaugoti automobilį';
     };
 
@@ -100,7 +198,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             .value.split(',')
             .map((item) => item.trim())
             .filter(Boolean);
-        const gallery = form
+        const galleryLinks = form
             .querySelector('#carGallery')
             .value.split(',')
             .map((item) => item.trim())
@@ -123,7 +221,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             color,
             description,
             features,
-            gallery,
+            gallery: [...galleryLinks, ...uploadedImages.map((item) => item.dataUrl)],
             vin,
         };
 
@@ -133,6 +231,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         submitBtn.disabled = false;
         alert('Automobilis išsaugotas!');
     });
+
+    if (uploadInput) {
+        uploadInput.addEventListener('change', (event) => {
+            handleUploads(event.target.files);
+        });
+    }
 
     exportBtn.addEventListener('click', () => {
         const blob = new Blob([JSON.stringify(cars, null, 2)], { type: 'application/json' });
@@ -174,5 +278,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.addEventListener('cars:updated', loadCars);
 
+    renderUploadedImages();
     loadCars();
 });
